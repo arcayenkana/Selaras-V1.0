@@ -5,7 +5,7 @@
                  JANGAN pernah memasukkan secret key atau service_role key.
    Bila dikosongkan, aplikasi tetap jalan di HP masing-masing tanpa peringkat bersama dan tanpa kuis bareng. */
 window.SELARAS_CONFIG = {
-  supabaseUrl: "",
-  supabaseKey: "",
+  supabaseUrl: "https://dyrysfilvjdmbxhcmauo.supabase.co",
+  supabaseKey: "sb_publishable_wXWV0vA1ISNXFjBpNkrVDQ_8cJmsWqW",
   pollMs: 20000
 };
