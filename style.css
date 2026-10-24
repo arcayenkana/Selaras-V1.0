@@ -416,3 +416,42 @@ button.qopt{cursor:pointer}
 .dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
 .dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
 .dots i.on{width:18px;border-radius:999px;background:var(--accent)}
+
+/* popup konfirmasi (di tengah layar) */
+.scrim.mid{align-items:center;padding:16px}
+.pop{background:var(--surface);width:100%;max-width:380px;border-radius:26px;padding:28px 24px 22px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:var(--shadow)}
+.pop h2{font-size:1.35rem}
+.pop p{margin:0;color:var(--muted)}
+.popic{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:var(--ok-soft);color:var(--ok)}
+.popic .ic{width:30px;height:30px;stroke-width:2.4}
+@media (prefers-reduced-motion:no-preference){.pop{animation:popin .28s cubic-bezier(.2,.9,.3,1.2) both}@keyframes popin{from{opacity:0;transform:scale(.88) translateY(8px)}}}
+
+/* tampilan desktop: sidebar kiri, konten lebih lebar */
+@media (min-width:1000px){
+  .app{max-width:none;margin:0;padding:0 48px 56px 280px}
+  body:has(#tabbar.hide) .app{padding-left:48px}
+  #view{max-width:960px;margin-inline:auto}
+  body:has(#tabbar.hide) #view{max-width:860px}
+  .tabbar{top:0;bottom:auto;right:auto;width:232px;height:100%;border-top:0;border-right:1px solid var(--line);padding:88px 14px 20px}
+  .tabbar::before{content:"Selaras";position:absolute;left:28px;top:28px;font-weight:800;font-size:1.5rem;letter-spacing:-.02em;color:var(--accent-strong)}
+  .tabbar .in{flex-direction:column;max-width:none;gap:6px}
+  .tabbar button{flex:none;flex-direction:row;justify-content:flex-start;gap:14px;padding:13px 16px;font-size:1rem;border-radius:16px}
+  .kv.full,.kv.head{margin-inline:0;border-radius:28px;margin-top:20px}
+  .kv.full{padding:0 28px 72px}.kv.head{padding:0 28px 28px}
+  .kv .top{padding-top:20px}
+  .stack.roomy{display:grid;grid-template-columns:1.15fr 1fr;gap:28px;align-items:start}
+  .stack.roomy>.menu{grid-template-columns:repeat(2,1fr);gap:18px 10px;padding-top:10px}
+  .stack.roomy>div:not(.card):not(.menu){grid-column:1/-1}
+  .stack.roomy>.card:not(.wallet){grid-column:1/-1}
+  .bn{flex:0 0 46%}
+  .stack:has(>.mod){display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .stack:has(>.mod)>:not(.mod){grid-column:1/-1}
+  .rail{margin-inline:0;padding-inline:0}
+  .bnr{margin-inline:0;padding-inline:0}
+  .toast{bottom:32px;left:calc(50% + 116px)}
+  .sheet{border-radius:26px;margin-bottom:5vh;max-height:80%}
+  .scrim{align-items:center}
+}
+@media (min-width:1500px){#view{max-width:1080px}}
+@media (min-width:1000px){body:not(:has(#tabbar.hide)) .top .brand{display:none}.helpbtn{margin-left:auto}}
+@media (min-width:1000px){.kmenu{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}.kmenu>:not(.card){grid-column:1/-1}}

@@ -24,7 +24,7 @@ function fmtPts(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,".");}
 
 /* ---------- Menu ---------- */
 function vMenu(){
-  var rt=A.hasRT(),h=A.kvHead("Kuis bareng","Main bareng, seru bareng","Masuk dengan kode dari host, atau buat kuismu sendiri untuk dimainkan di kelas dan kegiatan.")+'<div class="stack">';
+  var rt=A.hasRT(),h=A.kvHead("Kuis bareng","Main bareng, seru bareng","Masuk dengan kode dari host, atau buat kuismu sendiri untuk dimainkan di kelas dan kegiatan.")+'<div class="stack kmenu">';
   if(!rt)h+='<div class="card warm"><h3>Belum tersambung ke server</h3><p class="small" style="margin:0">Kuis bareng butuh Supabase supaya semua HP bisa main bersama. Hubungkan dulu lewat panduan di README, lalu buka Selaras dari alamat website-mu.</p></div>';
   if(Q.code)h+='<button class="mod" data-a="qResume"><span class="glyph" style="--c:var(--seg-kolab)">'+ic("play")+'</span><span class="grow"><h3>Lanjut ke kuis '+esc(fmtCode(Q.code))+'</h3><span class="small muted">'+(Q.role==="host"?"Kamu host kuis ini":"Kamu pemain di kuis ini")+'</span></span>'+ic("right")+'</button>';
   h+='<div class="card stack"><div><h2>Gabung kuis</h2><p class="small muted" style="margin:0">Minta kode 6 digit dari host, atau pindai QR di layar.</p></div>'+

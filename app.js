@@ -378,6 +378,10 @@ var BANNERS=[
  {k:"",tag:"Fakta",t:"Feed itu sorotan",x:"Orang memilih momen terbaik untuk diunggah. Jangan bandingkan belakang panggungmu dengan panggung orang lain."}
 ];
 var BNT=null;
+function popup(o){
+  $("#overlay").innerHTML='<div class="scrim mid" data-a="closeHelp"><div class="pop" role="dialog" aria-modal="true" aria-label="'+esc(o.t)+'" data-stop="1"><span class="popic">'+ic("check")+'</span><h2>'+esc(o.t)+'</h2>'+(o.pts?'<span class="chip warm">'+esc(o.pts)+'</span>':'')+'<p>'+esc(o.x)+'</p><div class="row" style="justify-content:center;width:100%">'+(o.more||'')+'<button class="btn primary" data-a="closeHelp">'+esc(o.ok||"Oke")+'</button></div></div></div>';
+  var b=document.querySelector("#overlay .pop .btn.primary");if(b)try{b.focus();}catch(e){}
+}
 function vBanner(){
   return '<div><div class="bnr" id="bnr" role="region" aria-label="Info singkat" tabindex="0">'+BANNERS.map(function(b){
     return '<div class="bn '+b.k+'"><div class="eyebrow">'+esc(b.tag)+'</div><h3>'+esc(b.t)+'</h3><p class="small">'+esc(b.x)+'</p>'+(b.a?'<button class="btn small" data-a="nav" data-v="'+b.a+'">'+esc(b.al)+'</button>':'')+'</div>';
@@ -888,10 +892,12 @@ var H={
  },
  quitTest:function(){var id=T&&T.id;T=null;go({v:"mod",id:id});},
  mood:function(d){
-   var k=dkey();if(S.mood[k]==null){S.mood[k]=+d.n;afterChange("+5 poin");}else{S.mood[k]=+d.n;persist();}
+   var k=dkey(),first=S.mood[k]==null;
+   if(first){S.mood[k]=+d.n;afterChange("");}else{S.mood[k]=+d.n;persist();}
    render();
+   popup({t:"Check-in tercatat",pts:first?"+5 poin":"",x:MOOD_TIP[+d.n],ok:"Oke",more:(+d.n<=2?'<button class="btn" data-a="help">Butuh bicara?</button>':'')});
  },
- chal:function(){var k=dkey();if(!S.chal[k]){S.chal[k]=1;afterChange("+15 poin");}render();},
+ chal:function(){var k=dkey(),first=!S.chal[k];if(first){S.chal[k]=1;afterChange("");}render();if(first)popup({t:"Tantangan selesai",pts:"+15 poin",x:"Satu langkah kecil hari ini sudah cukup. Sampai ketemu lagi besok."});},
  help:function(){$("#overlay").innerHTML=helpSheet();},
  closeHelp:function(){$("#overlay").innerHTML="";},
  btab:function(d){boardTab=d.t;render();},
@@ -916,7 +922,7 @@ var H={
    if(first)toast("Selamat datang, "+n);
  },
  rate:function(d){SV[d.k]=+d.n;render();},
- sendSurvey:function(){if(SV.a&&SV.b&&SV.c&&SV.d&&SV.e){S.puas={a:SV.a,b:SV.b,c:SV.c,d:SV.d,e:SV.e};afterChange("+20 poin, terima kasih");render();}},
+ sendSurvey:function(){if(SV.a&&SV.b&&SV.c&&SV.d&&SV.e){S.puas={a:SV.a,b:SV.b,c:SV.c,d:SV.d,e:SV.e};afterChange("");render();popup({t:"Terima kasih",pts:"+20 poin",x:"Surveimu membantu kader PIKR memperbaiki Selaras."});}},
  resetAsk:function(){resetConfirm=true;render();},
  svOpen:function(){svOpen=true;render();},
  why:function(){var e=document.getElementById("why");if(e)e.scrollIntoView({behavior:window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});},
@@ -933,8 +939,8 @@ var H={
  brStop:function(){stopBreath();var b=$("#brBtn"),t=$("#brTxt"),o=$("#orb");if(b){b.textContent="Mulai";b.setAttribute("data-a","brStart");}if(t)t.textContent="Siap?";if(o){o.style.transform="scale(.75)";o.textContent="4";}var s=$("#brSub");if(s)s.textContent="";},
  noop:function(){},
  fasil:function(d){go({v:"fasil",k:d.k||""});},
- pikrDone:function(){if(!S.pikrRead){S.pikrRead=true;afterChange("+10 poin");}render();},
- minat:function(){S.minat=!S.minat;afterChange(S.minat?"Minatmu tercatat":"Minat dibatalkan");render();},
+ pikrDone:function(){var first=!S.pikrRead;if(first){S.pikrRead=true;afterChange("");}render();if(first)popup({t:"Kamu sudah kenal PIKR",pts:"+10 poin",x:"Kalau tertarik, hubungi PIKR di tempatmu. Selaras tidak mendaftarkanmu otomatis."});},
+ minat:function(){S.minat=!S.minat;afterChange("");render();popup(S.minat?{t:"Minatmu tercatat",x:"Kader PIKR bisa melihat bahwa kamu tertarik. Tidak ada data pribadi yang dikirim."}:{t:"Minat dibatalkan",x:"Tidak apa-apa. Kamu bisa mengubahnya kapan saja."});},
  copyAjak:function(){
    var t=ajakText();
    function fb(){toast("Tekan lama pada teks untuk menyalin");}
