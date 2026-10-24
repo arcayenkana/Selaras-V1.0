@@ -404,3 +404,15 @@ button.qopt{cursor:pointer}
 .dist .bar{flex:1}
 .kick{border:0;background:none;color:var(--bad);font-weight:800;font-size:1rem;cursor:pointer;padding:0 2px;min-width:28px;min-height:28px}
 .podium .pod.p2,.podium .pod.p3{padding-block:12px}
+
+/* masthead info (geser otomatis, berhenti saat disentuh atau saat gerak dikurangi) */
+.bnr{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:-16px;padding:2px 16px 4px;scrollbar-width:none}
+.bnr::-webkit-scrollbar{display:none}
+.bn{flex:0 0 84%;scroll-snap-align:start;border-radius:20px;padding:16px 18px;background:var(--accent-soft);display:flex;flex-direction:column;gap:6px;align-items:flex-start;min-height:150px}
+.bn.warm{background:var(--warm-soft)}
+.bn h3{font-size:1.3rem;font-weight:800}
+.bn p{margin:0;color:var(--ink)}
+.bn .btn{margin-top:auto}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.dots i.on{width:18px;border-radius:999px;background:var(--accent)}
