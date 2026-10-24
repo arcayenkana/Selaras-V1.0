@@ -81,11 +81,23 @@ function checkDraft(){
   }
   return {title:t,qs:out};
 }
+/* Soal kuis harus bisa dijawab tanpa membaca modul: buang rujukan "menurut materi". */
+function plain(t){
+  var x=String(t||"");
+  x=x.replace(/^Menurut materi, yang bisa baik atau buruk adalah…/,"Setelah merasakan suatu emosi, yang bisa baik atau buruk adalah…").replace(/^"Nilai" menurut materi adalah…/,'Dalam pengembangan diri, "nilai" adalah…').replace(/bercerita berbulan-bulan kemudian\. Menurut materi\?/,"bercerita berbulan-bulan kemudian. Bagaimana memahaminya?").replace(/merasa gagal total\. Menurut materi\?/,"merasa gagal total. Respons terbaik untuk Dina?");
+  x=x.replace(/dengan rumus di materi/,'dengan rumus \"aku merasa (emosi) karena (sebab)\"');
+  x=x.replace(/\s*Menurut materi\?$/,' Apa yang paling tepat?');
+  x=x.replace(/^Menurut materi,\s*(\S)/,function(m,c){return c.toUpperCase();});
+  x=x.replace(/\.\s+Menurut materi,\s*(\S)/,function(m,c){return '. '+c.toUpperCase();});
+  x=x.replace(/,?\s*(yang )?(sesuai|selaras) (dengan )?materi\?/,' yang paling tepat?');
+  x=x.replace(/\s*menurut materi/i,'');
+  return x.replace(/\s+\?/,'?').replace(/\s{2,}/g,' ');
+}
 function fromBank(ids){
   var qs=[];
   ids.forEach(function(id){
     var m=A.MODS.filter(function(x){return x.id===id;})[0];if(!m)return;
-    ["pre","post"].forEach(function(k){A.buildQs(m,k).forEach(function(q){qs.push({q:q.q,o:q.o.slice(),a:q.a,t:20});});});
+    ["pre","post"].forEach(function(k){A.buildQs(m,k).forEach(function(q){qs.push({q:plain(q.q),o:q.o.slice(),a:q.a,t:20});});});
   });
   return qs;
 }
@@ -148,13 +160,17 @@ function vPlay(){
       (mine!=null?'<div class="callout"><b class="t">Terkirim</b>Jawabanmu sudah masuk. Tunggu pemain lain atau waktu habis.</div>':'');
   }else if(p.state==="reveal"){
     var ok=me&&me.correct,none=me&&me.choice==null;
-    h+='<div class="card stack" style="text-align:center"><div class="eyebrow">Soal '+(p.qi+1)+' dari '+p.total+'</div><h1 style="font-size:1.8rem;color:'+(ok?'var(--ok)':'var(--bad)')+'">'+(ok?"Benar!":(none?"Waktu habis":"Belum tepat"))+'</h1>'+
+    var prev=Q.rk&&Q.rk[p.qi-1];Q.rk=Q.rk||{};if(me)Q.rk[p.qi]=me.rank;
+    var move=(me&&prev!=null)?(me.rank<prev?"Naik "+(prev-me.rank)+" peringkat":(me.rank>prev?"Turun "+(me.rank-prev)+" peringkat":"Bertahan di peringkat #"+me.rank)):"";
+    var head=ok?(me.streak>=3?"Beruntun, mantap!":"Benar!"):(none?"Waktu habis":"Belum tepat");
+    var cheer=ok?(me.streak>=3?me.streak+" jawaban benar berturut-turut":""):(p.qi+1<p.total?"Tenang, masih ada soal berikutnya.":"");
+    h+='<div class="card stack" style="text-align:center"><div class="eyebrow">Soal '+(p.qi+1)+' dari '+p.total+'</div><h1 style="font-size:1.8rem;color:'+(ok?'var(--ok)':'var(--bad)')+'">'+head+'</h1>'+(cheer?'<p style="margin:0">'+cheer+'</p>':'')+
       (ok?'<p class="num" style="font-size:1.4rem;font-weight:800;margin:0">+'+fmtPts(me.gained)+'</p>':'')+
-      '<p class="muted" style="margin:0">Jawaban yang benar: <b>'+L[p.a]+'. '+esc(p.q.o[p.a])+'</b></p></div>'+
+      (move?'<p class="chip plain" style="align-self:center;margin:0">'+move+'</p>':'')+'<p class="muted" style="margin:0">Jawaban yang benar: <b>'+L[p.a]+'. '+esc(p.q.o[p.a])+'</b></p></div>'+
       '<div class="card stack"><div class="row" style="justify-content:space-between"><span>Peringkatmu</span><b class="num">#'+me.rank+'</b></div><div class="row" style="justify-content:space-between"><span>Total poin</span><b class="num">'+fmtPts(me.score)+'</b></div>'+(me.streak>1?'<div class="row" style="justify-content:space-between"><span>Beruntun</span><b class="num">'+me.streak+' benar</b></div>':'')+'</div>'+
       '<div class="card stack"><div class="eyebrow">Lima teratas</div>'+topList(p.top,Q.nick)+'</div><p class="small muted" style="text-align:center">Menunggu host ke soal berikutnya…</p>';
   }else{
-    h+='<div class="card stack" style="text-align:center"><div class="eyebrow">Kuis selesai</div><h1 style="font-size:1.6rem">'+esc(p.title)+'</h1>'+(me?'<p style="margin:0">Kamu peringkat <b>#'+me.rank+'</b> dari '+p.players+' pemain, dengan <b class="num">'+fmtPts(me.score)+'</b> poin.</p>':'')+'</div>'+podium(p.final)+
+    h+='<div class="card stack" style="text-align:center"><div class="eyebrow">Kuis selesai</div><h1 style="font-size:1.6rem">'+esc(p.title)+'</h1>'+(me?'<p style="margin:0">'+(me.rank<=3?'Selamat, kamu masuk 3 besar! ':'Seru mainnya! ')+'Peringkat <b>#'+me.rank+'</b> dari '+p.players+' pemain, dengan <b class="num">'+fmtPts(me.score)+'</b> poin.</p>':'')+'</div>'+podium(p.final)+
       '<div class="stack" style="gap:8px">'+topList(p.final,Q.nick)+'</div><button class="btn primary block" data-a="qLeave">Selesai</button>';
   }
   return h+'</div>';
@@ -214,7 +230,7 @@ function enterRoom(role){saveSess();A.go({v:"kuis",k:role==="host"?"host":"play"
 var H=A.H;
 H.qMenu=function(){stopPoll();Q.err="";A.go({v:"kuis",k:"menu"});};
 H.qResume=function(){if(Q.code){Q.err="";enterRoom(Q.role);}};
-H.qLeave=function(){stopPoll();Q.code="";Q.pid="";Q.token="";Q.role="";Q.p=null;Q.mine={};Q.err="";saveSess();A.go(A.S.nick?{v:"home"}:{v:"welcome"});};
+H.qLeave=function(){stopPoll();Q.code="";Q.pid="";Q.token="";Q.role="";Q.p=null;Q.mine={};Q.rk={};Q.err="";saveSess();A.go(A.S.nick?{v:"home"}:{v:"welcome"});};
 H.qJoin=function(){
   var code=($("#qcode").value||"").replace(/\D/g,""),nick=($("#qnick").value||"").trim();
   Q.joinCode=code;Q.joinNick=nick;
@@ -223,7 +239,7 @@ H.qJoin=function(){
   if(Q.busy)return;Q.busy=true;setErr("");
   var pid=rid();
   rpc("sel_quiz_join",{p_code:code,p_pid:pid,p_nick:nick}).then(function(r){
-    Q.code=code;Q.pid=pid;Q.nick=nick;Q.role="player";Q.title=r.title;Q.token="";Q.mine={};Q.err="";Q.joinCode="";
+    Q.code=code;Q.pid=pid;Q.nick=nick;Q.role="player";Q.title=r.title;Q.token="";Q.mine={};Q.rk={};Q.err="";Q.joinCode="";
     enterRoom("player");
   }).catch(function(e){setErr(e.message||"Tidak bisa bergabung.");}).then(function(){Q.busy=false;});
 };
@@ -247,7 +263,7 @@ function createAndHost(title,qs){
   if(Q.busy)return;Q.busy=true;
   var token=rid();
   rpc("sel_quiz_create",{p_title:title,p_questions:qs,p_host:token}).then(function(code){
-    Q.code=code;Q.token=token;Q.pid="";Q.role="host";Q.title=title;Q.mine={};Q.err="";
+    Q.code=code;Q.token=token;Q.pid="";Q.role="host";Q.title=title;Q.mine={};Q.rk={};Q.err="";
     enterRoom("host");
   }).catch(function(e){setErr(e.message||"Gagal membuat kuis.");A.toast(e.message||"Gagal membuat kuis");}).then(function(){Q.busy=false;});
 }

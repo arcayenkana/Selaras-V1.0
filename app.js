@@ -277,23 +277,23 @@ function render(){
     default:html=vHome();
   }
   var vw=$("#view");vw.classList.toggle("enter",ENTER);ENTER=false;
-  vw.innerHTML=html;
+  vw.innerHTML=html;initBanner();
   renderTabs();
 }
 function renderTabs(){
   var hide=(!S.nick||!S.seg||R.v==="welcome"||R.v==="onb"||R.v==="test");
   $("#tabbar").classList.toggle("hide",hide);
   if(hide)return;
-  var map={mod:"mods",read:"mods",napas:"home",chal:"home",badge:"home",fasil:"me",rekap:"me",kuis:"home"};
+  var map={mod:"mods",read:"mods",napas:"home",chal:"home",badge:"home",board:"home",fasil:"me",rekap:"me",kuis:"kuis"};
   var cur=map[R.v]||R.v;
-  var items=[["home","Beranda","home"],["mods","Belajar","book"],["board","Peringkat","trophy"],["faq","FAQ","help"],["me","Profil","user"]];
+  var items=[["home","Beranda","home"],["mods","Belajar","book"],["kuis","Kuis","play"],["faq","FAQ","help"],["me","Profil","user"]];
   $("#tabs").innerHTML=items.map(function(i){
     return '<button data-a="nav" data-v="'+i[0]+'"'+(cur===i[0]?' aria-current="page"':'')+'>'+ic(i[2])+'<span>'+i[1]+'</span></button>';
   }).join("");
 }
 
 /* ---------- Komponen KV ---------- */
-function kvArt(){return '<svg class="kv-art" viewBox="0 0 400 220" preserveAspectRatio="xMaxYMax slice" aria-hidden="true"><path class="kv-wave1" d="M-30 160C40 128 100 192 180 160S310 128 430 160V220H-30Z" fill="#fff" fill-opacity=".10"/><path class="kv-wave2" d="M-30 188C50 160 110 214 190 186S320 164 430 190V220H-30Z" fill="#fff" fill-opacity=".12"/></svg>';}
+function kvArt(){return '<svg class="kv-art" viewBox="0 0 400 220" preserveAspectRatio="xMaxYMax slice" aria-hidden="true"><circle cx="340" cy="52" r="110" fill="#fff" fill-opacity=".06"/><circle cx="340" cy="52" r="78" fill="#fff" fill-opacity=".07"/><circle cx="40" cy="190" r="70" fill="#fff" fill-opacity=".05"/><path class="kv-wave1" d="M-30 160C40 128 100 192 180 160S310 128 430 160V220H-30Z" fill="#fff" fill-opacity=".10"/><path class="kv-wave2" d="M-30 188C50 160 110 214 190 186S320 164 430 190V220H-30Z" fill="#fff" fill-opacity=".12"/></svg>';}
 function brandMark(){return '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="4" width="6" height="24" rx="3" fill="currentColor"/><rect x="21" y="4" width="6" height="24" rx="3" fill="currentColor"/><circle cx="16" cy="16" r="3" fill="currentColor" opacity=".55"/></svg>';}
 function topbar(onKv){
   return '<div class="top'+(onKv?' on-kv':'')+'"><div class="brand">'+brandMark()+'<div>Selaras</div></div>'+
@@ -368,7 +368,36 @@ function todayChallenge(off){
 function moodRow(mood){
   return '<div class="mood" role="group" aria-label="Suasana hati">'+MOODS.map(function(m){return '<button data-a="mood" data-n="'+m.n+'" aria-pressed="'+(mood===m.n)+'">'+face(m)+'<span>'+m.l+'</span></button>';}).join("")+'</div>';
 }
-var MENU=[["mods","Belajar","book","var(--m-emosi)"],["chal","Tantangan","bolt","var(--m-bully)"],["kuis","Kuis bareng","play","var(--seg-kolab)"],["badge","Badge","star","var(--m-diri)"]];
+var MENU=[["chal","Tantangan","bolt","var(--m-bully)"],["kuis","Kuis bareng","play","var(--seg-kolab)"],["board","Peringkat","trophy","var(--m-emosi)"],["badge","Badge","star","var(--m-diri)"]];
+var BANNERS=[
+ {k:"warm",tag:"Tahukah kamu?",t:"Semua emosi punya tugas",x:"Marah menandai batas yang dilanggar, sedih mengajak kita mencari dukungan."},
+ {k:"",tag:"Data remaja Indonesia",t:"1 dari 3",x:"remaja usia 10 sampai 17 tahun punya gejala masalah kesehatan mental dalam setahun terakhir. Sumber: I-NAMHS."},
+ {k:"warm",tag:"Data remaja Indonesia",t:"Hanya 2,6%",x:"remaja bermasalah yang memakai layanan konseling. Bercerita ke orang tepercaya itu langkah berani."},
+ {k:"",tag:"Coba sekarang",t:"Napas 4-6, 1 menit",x:"Tarik napas 4 hitungan, hembuskan 6. Hembusan yang lebih panjang membantu tubuh menurunkan ketegangan.",a:"napas",al:"Mulai napas"},
+ {k:"warm",tag:"Seru bareng",t:"Main kuis bareng",x:"Masukkan kode dari host, atau buat kuismu sendiri untuk sesi bareng teman.",a:"kuis",al:"Buka kuis"},
+ {k:"",tag:"Fakta",t:"Feed itu sorotan",x:"Orang memilih momen terbaik untuk diunggah. Jangan bandingkan belakang panggungmu dengan panggung orang lain."}
+];
+var BNT=null;
+function vBanner(){
+  return '<div><div class="bnr" id="bnr" role="region" aria-label="Info singkat" tabindex="0">'+BANNERS.map(function(b){
+    return '<div class="bn '+b.k+'"><div class="eyebrow">'+esc(b.tag)+'</div><h3>'+esc(b.t)+'</h3><p class="small">'+esc(b.x)+'</p>'+(b.a?'<button class="btn small" data-a="nav" data-v="'+b.a+'">'+esc(b.al)+'</button>':'')+'</div>';
+  }).join("")+'</div><div class="dots" id="bdots">'+BANNERS.map(function(b,i){return '<i'+(i?'':' class="on"')+'></i>';}).join("")+'</div></div>';
+}
+function initBanner(){
+  if(BNT){clearInterval(BNT);BNT=null;}
+  var r=document.getElementById("bnr");if(!r)return;
+  var dots=document.querySelectorAll("#bdots i"),n=BANNERS.length,hold=0,idx=0;
+  function w(){var c=r.children[1];return c?c.offsetLeft-r.children[0].offsetLeft:r.clientWidth;}
+  r.addEventListener("scroll",function(){idx=Math.round(r.scrollLeft/(w()||1));for(var i=0;i<dots.length;i++)dots[i].className=i===idx?"on":"";},{passive:true});
+  ["pointerdown","touchstart","focusin","wheel"].forEach(function(e){r.addEventListener(e,function(){hold=Date.now()+9000;},{passive:true});});
+  var reduce=false;try{reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;}catch(e){}
+  if(reduce)return;
+  BNT=setInterval(function(){
+    if(!document.getElementById("bnr")){clearInterval(BNT);BNT=null;return;}
+    if(Date.now()<hold||document.hidden)return;
+    var nx=(idx+1)%n;r.scrollTo({left:nx*w(),behavior:"smooth"});
+  },5000);
+}
 function vHome(){
   var p=points(),lv=levelOf(p),nx=nextLevel(p),st=streak(),today=dkey(),mood=S.mood[today];
   var pct=nx?Math.round((p-lv.min)/(nx.min-lv.min)*100):100;
@@ -385,6 +414,7 @@ function vHome(){
   h+='<div class="menu">'+MENU.map(function(m){
     return '<button data-a="nav" data-v="'+m[0]+'"><span class="mi" style="--c:'+m[3]+'">'+ic(m[2])+'</span><span>'+m[1]+'</span></button>';
   }).join("")+'</div>';
+  h+=vBanner();
   h+='<div class="card '+(chDone?'':'warm')+'"><div class="eyebrow">Tantangan hari ini, +15 poin</div><h3 style="margin:6px 0 14px">'+esc(ch)+'</h3>'+
    (chDone?'<span class="chip ok">'+ic("check")+' Selesai</span>':'<button class="btn primary" data-a="chal">Sudah kulakukan</button>')+'</div></div>';
   return h;
@@ -817,6 +847,7 @@ var H={
  nav:function(d){
    var v=d.v;
    if(v==="rekap"&&!ADMIN)v="home";
+   if(v==="kuis"){go({v:"kuis",k:"menu"});return;}
    if(v==="me"){SV={a:0,b:0,c:0,d:0,e:0};}
    go({v:v});
  },
